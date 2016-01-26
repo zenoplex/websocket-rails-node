@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 import assert from 'power-assert';
-import WebSocketRails from '../src/WebSocketRails';
+import Channel from '../src/Channel';
 import { WebSocketRailsStub } from './stubs';
 
 describe('WebSocketRails.Channel:', () => {
@@ -10,7 +10,7 @@ describe('WebSocketRails.Channel:', () => {
 
   beforeEach(() => {
     dispatcher = new WebSocketRailsStub();
-    channel = new WebSocketRails.Channel('public', dispatcher);
+    channel = new Channel('public', dispatcher);
     spy = sinon.spy(dispatcher, 'trigger_event');
   });
 
@@ -27,17 +27,15 @@ describe('WebSocketRails.Channel:', () => {
     });
   });
 
-  // describe('.unbind', function() {
-  //  return it('should remove the callbacks of an event', function() {
-  //    const callback = function() {};
-  //    console.log(this.channel);
-  //    this.channel.bind('event', callback);
-  //    this.channel.unbind('event');
-  //    const cbs = this.channel._callbacks['event']
-  //    console.log(cbs, 'callbacks', cbs.length, cbs === '');
-  //    //assert(this.channel._callbacks['event'] == null);
-  //  });
-  // });
+  describe('.unbind', () => {
+    it('should remove the callbacks of an event', () => {
+      const callback = () => true;
+      channel.bind('event', callback);
+      channel.unbind('event');
+      assert(channel._callbacks.event === undefined);
+    });
+  });
+
   describe('.trigger', () => {
     describe('before the channel token is set', () => {
       it('queues the events', () => {
@@ -98,7 +96,7 @@ describe('WebSocketRails.Channel:', () => {
     let event;
 
     beforeEach(() => {
-      channel = new WebSocketRails.Channel('forchan', dispatcher, false);
+      channel = new Channel('forchan', dispatcher, false);
       event = dispatcher.trigger_event.lastCall.args[0];
     });
 
@@ -148,7 +146,7 @@ describe('WebSocketRails.Channel:', () => {
     let event;
 
     beforeEach(() => {
-      channel = new WebSocketRails.Channel('forchan', dispatcher, true);
+      channel = new Channel('forchan', dispatcher, true);
       event = dispatcher.trigger_event.lastCall.args[0];
     });
 

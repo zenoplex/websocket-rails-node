@@ -5,7 +5,7 @@ export default class HttpConnection extends AbstractConnection {
     super(url, dispatcher);
     this.connection_type = 'http';
 
-    var e;
+    let e;
     this.dispatcher = dispatcher;
     this._url = 'http://' + url;
     this._conn = this._createXMLHttpObject();
@@ -24,18 +24,14 @@ export default class HttpConnection extends AbstractConnection {
   }
 
   _httpFactories() {
+    const { XDomainRequest, XMLHttpRequest, ActiveXObject } = window;
+
     return [
-      function () {
-        return new XDomainRequest();
-      }, function () {
-        return new XMLHttpRequest();
-      }, function () {
-        return new ActiveXObject('Msxml2.XMLHTTP');
-      }, function () {
-        return new ActiveXObject('Msxml3.XMLHTTP');
-      }, function () {
-        return new ActiveXObject('Microsoft.XMLHTTP');
-      }
+      () => new XDomainRequest(),
+      () => new XMLHttpRequest(),
+      () => new ActiveXObject('Msxml2.XMLHTTP'),
+      () => new ActiveXObject('Msxml3.XMLHTTP'),
+      () => new ActiveXObject('Microsoft.XMLHTTP'),
     ];
   }
 
@@ -49,13 +45,14 @@ export default class HttpConnection extends AbstractConnection {
   };
 
   _post_data(payload) {
+    const $ = require('jquery');
     return $.ajax(this._url, {
       type:    'POST',
       data:    {
         client_id: this.connection_id,
-        data:      payload
+        data:      payload,
       },
-      success: function () {}
+      success: () => false,
     });
   };
 

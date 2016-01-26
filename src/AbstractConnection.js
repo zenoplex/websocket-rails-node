@@ -11,8 +11,9 @@ export default class AbstractConnection {
   trigger(event) {
     if (this.dispatcher.state !== 'connected') {
       return this.message_queue.push(event);
+    } else {
+      return this.send_event(event);
     }
-    return this.send_event(event);
   }
 
   send_event(event) {
@@ -22,18 +23,16 @@ export default class AbstractConnection {
   }
 
   on_close(event) {
-    var close_event;
     if (this.dispatcher && this.dispatcher._conn === this) {
-      close_event = new Event(['connection_closed', event]);
+      const close_event = new Event(['connection_closed', event]);
       this.dispatcher.state = 'disconnected';
       return this.dispatcher.dispatch(close_event);
     }
   }
 
   on_error(event) {
-    var error_event;
     if (this.dispatcher && this.dispatcher._conn === this) {
-      error_event = new Event(['connection_error', event]);
+      const error_event = new Event(['connection_error', event]);
       this.dispatcher.state = 'disconnected';
       return this.dispatcher.dispatch(error_event);
     }

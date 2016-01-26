@@ -26,7 +26,7 @@ export default class Channel {
     const event = new Event([
       event_name, {
         data: {
-          channel: this.name
+          channel: this.name,
         },
       }, this.connection_id,
     ], this._success_launcher, this._failure_launcher);

@@ -10,6 +10,8 @@ export default class Channel {
     this.is_private = is_private != null ? is_private : false;
     this.on_success = on_success;
     this.on_failure = on_failure;
+    this._failure_launcher = this._failure_launcher.bind(this);
+    this._success_launcher = this._success_launcher.bind(this);
     this._callbacks = {};
     this._token = void 0;
     this._queue = [];
@@ -19,18 +21,12 @@ export default class Channel {
     } else {
       event_name = 'websocket_rails.subscribe';
     }
-
-
     this.connection_id = (ref = this._dispatcher._conn) != null ? ref.connection_id : void 0;
-
-
-
-
 
     const event = new Event([
       event_name, {
         data: {
-          channel: this.name,
+          channel: this.name
         },
       }, this.connection_id,
     ], this._success_launcher, this._failure_launcher);
@@ -51,17 +47,19 @@ export default class Channel {
       ]);
       this._dispatcher.trigger_event(event);
     }
-
-    return (this._callbacks = {});
+    return this._callbacks = {};
   }
 
   bind(event_name, callback) {
     let base;
-
     if ((base = this._callbacks)[event_name] == null) {
       base[event_name] = [];
     }
     return this._callbacks[event_name].push(callback);
+  }
+
+  unbind(event_name) {
+    return delete this._callbacks[event_name];
   }
 
   trigger(event_name, message) {
@@ -72,16 +70,15 @@ export default class Channel {
         token:   this._token,
       }, this.connection_id,
     ]);
-
     if (!this._token) {
       return this._queue.push(event);
+    } else {
+      return this._dispatcher.trigger_event(event);
     }
-    return this._dispatcher.trigger_event(event);
   }
 
   dispatch(event_name, message) {
     var callback, i, len, ref, ref1, results;
-
     if (event_name === 'websocket_rails.channel_token') {
       this.connection_id = (ref = this._dispatcher._conn) != null ? ref.connection_id : void 0;
       this._token = message['token'];
@@ -101,22 +98,24 @@ export default class Channel {
   }
 
   _success_launcher(data) {
-    if (this.on_success) {
+    if (this.on_success != null) {
       return this.on_success(data);
     }
   }
 
   _failure_launcher(data) {
-    if (this.on_failure) {
+    if (this.on_failure != null) {
       return this.on_failure(data);
     }
   }
 
   flush_queue() {
-    this._queue.forEach(item => {
-      this._dispatcher.trigger_event(item);
-    });
-
-    return (this._queue = []);
+    var event, i, len, ref;
+    ref = this._queue;
+    for (i = 0, len = ref.length; i < len; i++) {
+      event = ref[i];
+      this._dispatcher.trigger_event(event);
+    }
+    return this._queue = [];
   }
 }

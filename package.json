@@ -6,7 +6,7 @@
   "name": "websocket-rails-node",
   "version": "0.0.2",
   "description": "ES6 implimention of websocket-rails javascript client",
-  "main": "/lib/index.js",
+  "main": "lib/index.js",
   "jsnext:main": "src/index.js",
   "files": [
     "dist",

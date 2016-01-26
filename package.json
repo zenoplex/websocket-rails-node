@@ -4,7 +4,7 @@
     "npm": ">=3.3 <4"
   },
   "name": "websocket-rails-node",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "ES6 implimention of websocket-rails javascript client",
   "main": "lib/index.js",
   "jsnext:main": "src/index.js",

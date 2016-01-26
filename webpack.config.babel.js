@@ -5,7 +5,6 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 export default {
   devtool: 'cheap-module-inline-eval-source-map',
   entry:   [
-    'eventsource-polyfill', // necessary for hot reloading with IE
     'webpack-hot-middleware/client',
     './src/index',
   ],
@@ -13,6 +12,8 @@ export default {
     path:       '/',
     filename:   'bundle.js',
     publicPath: '',
+    libraryTarget: 'umd',
+    library: 'WebSocketRails',
   },
   plugins: [
     new webpack.ProvidePlugin({
@@ -24,8 +25,8 @@ export default {
     new webpack.NoErrorsPlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      mobile:   true,
       template: 'template.html',
+      inject:   'head',
     }),
   ],
   module:  {
@@ -35,19 +36,6 @@ export default {
         loaders: ['babel'],
         include: path.join(__dirname, 'src'),
       },
-      {
-        test:    /\.scss/,
-        loaders: ['style', 'css', 'sass'],
-      },
-      {
-        test:    /\.jpg/,
-        loaders: ['file'],
-      },
-      {
-        test:    /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loaders: ['url?limit=10000&minetype=application/font-woff'],
-      },
-      { test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loaders: ['file'] },
     ],
   },
 };

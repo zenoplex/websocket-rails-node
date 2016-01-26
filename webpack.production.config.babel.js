@@ -1,7 +1,5 @@
 import path from 'path';
 import webpack from 'webpack';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import ExtractTextWebpackPlugin from 'extract-text-webpack-plugin';
 
 export default {
   entry:   [
@@ -9,14 +7,11 @@ export default {
   ],
   output:  {
     path:     path.join(__dirname, 'dist'),
-    filename: 'bundle.js',
+    filename: 'websocket_rails.js',
+    libraryTarget: 'umd',
+    library: 'WebSocketRails',
   },
   plugins: [
-    new webpack.ProvidePlugin({
-      $:               'jquery',
-      jQuery:          'jquery',
-      'window.jQuery': 'jquery',
-    }),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
@@ -28,15 +23,6 @@ export default {
         warnings: false,
       },
     }),
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      mobile:   true,
-      template: 'template.html',
-      minify:   {
-        collapseWhitespace: true,
-      },
-    }),
-    new ExtractTextWebpackPlugin('styles.css'),
   ],
   module:  {
     loaders: [
@@ -45,16 +31,6 @@ export default {
         loaders: ['babel'],
         include: path.join(__dirname, 'src'),
       },
-      {
-        test:    /\.jpg/,
-        loaders: ['file'],
-      },
-      {
-        test:    /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loaders: ['url?limit=10000&minetype=application/font-woff'],
-      },
-      { test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loaders: ['file'] },
-      { test: /\.scss$/, loader: ExtractTextWebpackPlugin.extract('style', 'css', 'sass') },
     ],
   },
 };

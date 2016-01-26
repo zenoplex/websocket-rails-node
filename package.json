@@ -1,0 +1,53 @@
+{
+  "private": true,
+  "engines": {
+    "node": ">=4",
+    "npm": ">=3.3 <4"
+  },
+  "name": "websocket-rails-node",
+  "version": "0.0.0",
+  "description": "ES6 implimention of websocket-rails javascript",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:prod": "NODE_ENV=production webpack --config webpack.production.config.babel.js",
+    "build": "npm run clean && npm run build:prod",
+    "start": "babel-node server/index.js",
+    "lint": "eslint src",
+    "mocha": "NODE_ENV=test mocha --compilers js:espower-babel/guess test/**/*.js",
+    "test": "npm run lint && npm run mocha",
+    "test:watch": "npm run mocha -- -w",
+    "postinstall": "npm run build"
+  },
+  "keywords": [
+    "WebSocket",
+    "rails",
+    "ES6",
+    "node"
+  ],
+  "author": "zenoplex <zenoplex@gmail.com> (http://zenoplex.jp)",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.4.5",
+    "babel-core": "^6.4.5",
+    "babel-eslint": "^5.0.0-beta6",
+    "babel-loader": "^6.2.1",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-stage-0": "^6.3.13",
+    "eslint": "^1.10.3",
+    "eslint-config-airbnb": "^4.0.0",
+    "eslint-plugin-babel": "^3.0.0",
+    "eslint-plugin-react": "^3.16.1",
+    "espower-babel": "^4.0.1",
+    "jsdom": "^7.2.2",
+    "mocha": "^2.3.4",
+    "power-assert": "^1.2.0",
+    "rimraf": "^2.5.1",
+    "sinon": "^1.17.2",
+    "webpack": "^1.12.12",
+    "webpack-hot-middleware": "^2.6.3"
+  }
+}

@@ -1,150 +1,163 @@
-//import sinon from 'sinon';
-//import assert from 'power-assert';
-//import Channel from '../src/Channel';
-//import { WebSocketRailsStub } from './stubs';
-//
-//
-//describe('Channel:', function () {
-//  beforeEach(function () {
-//    this.dispatcher = new WebSocketRailsStub();
-//    this.channel = new Channel('public', this.dispatcher);
-//    sinon.spy(this.dispatcher, 'trigger_event');
-//  });
-//
-//  afterEach(function () {
-//    this.dispatcher.trigger_event.restore();
-//  });
-//
-//  describe('.bind', function () {
-//    it('should add a function to the callbacks collection', function () {
-//      const test_func = function () {};
-//      this.channel.bind('event_name', test_func);
-//      assert(this.channel._callbacks['event_name'].length === 1);
-//
-//      console.log(this.channel._callbacks['event_name'], 'afe');
-//
-//      assert(this.channel._callbacks['event_name'].find(test_func));
-//    });
-//  });
-//
-//  describe('.unbind', function () {
-//    it('should remove the callbacks of an event', function () {
-//
-//      const callback = function () {};
-//      this.channel.bind('event', callback);
-//      this.channel.unbind('event');
-//      assert(this.channel._callbacks['event']).toBeUndefined();
-//    });
-//  });
-//
-//  describe('.trigger', function () {
-//    describe('before the channel token is set', function () {
-//      it('queues the events', function () {
-//        var queue;
-//        this.channel.trigger('someEvent', 'someData');
-//        queue = this.channel._queue;
-//        assert(queue[0].name).toEqual('someEvent');
-//        assert(queue[0].data).toEqual('someData');
-//      });
-//    });
-//
-//    describe('when channel token is set', function () {
-//      it('adds token to event metadata and dispatches event', function () {
-//        this.channel._token = 'valid token';
-//        this.channel.trigger('someEvent', 'someData');
-//        assert(this.dispatcher.trigger_event.calledWith([
-//          'someEvent', {
-//            token: 'valid token',
-//            data:  'someData'
-//          }
-//        ]));
-//      });
-//    });
-//  });
-//
-//  describe('.destroy', function () {
-//    it('should destroy all callbacks', function () {
-//      var event_callback;
-//      event_callback = function () {
-//        true;
-//      };
-//      this.channel.bind('new_message', this.event_callback);
-//      this.channel.destroy();
-//      assert(this.channel._callbacks).toEqual({});
-//    });
-//
-//    describe('when this channel\'s connection is still active', function () {
-//      it('should send unsubscribe event', function () {
-//        this.channel.destroy();
-//        assert(this.dispatcher.trigger_event.args[0][0].name).toEqual('websocket_rails.unsubscribe');
-//      });
-//    });
-//
-//    describe('when this channel\'s connection is no more active', function () {
-//      beforeEach(function () {
-//        this.dispatcher._conn.connection_id++;
-//      });
-//      it('should not send unsubscribe event', function () {
-//        this.channel.destroy();
-//        assert(this.dispatcher.trigger_event.notCalled).toEqual(true);
-//      });
-//    });
-//  });
-//
-//  describe('public channels', function () {
-//    beforeEach(function () {
-//      this.channel = new WebSocketRails.Channel('forchan', this.dispatcher, false);
-//      this.event = this.dispatcher.trigger_event.lastCall.args[0];
-//    });
-//    it('should trigger an event containing the channel name', function () {
-//      assert(this.event.data.channel).toEqual('forchan');
-//    });
-//    it('should trigger an event containing the correct connection_id', function () {
-//      assert(this.event.connection_id).toEqual(12345);
-//    });
-//    it('should initialize an empty callbacks property', function () {
-//      assert(this.channel._callbacks).toBeDefined();
-//      assert(this.channel._callbacks).toEqual({});
-//    });
-//    it('should be public', function () {
-//      assert(this.channel.is_private).toBeFalsy;
-//    });
-//  });
-//  describe('channel tokens', function () {
-//    it('should set token when event_name is websocket_rails.channel_token', function () {
-//      this.channel.dispatch('websocket_rails.channel_token', {
-//        token: 'abc123'
-//      });
-//      assert(this.channel._token).toEqual('abc123');
-//    });
-//    it("should refresh channel's connection_id after channel_token has been received", function () {
-//      this.channel.connection_id = null;
-//      this.channel.dispatch('websocket_rails.channel_token', {
-//        token: 'abc123'
-//      });
-//      assert(this.channel.connection_id).toEqual(this.dispatcher._conn.connection_id);
-//    });
-//    it('should flush the event queue after setting token', function () {
-//      this.channel.trigger('someEvent', 'someData');
-//      this.channel.dispatch('websocket_rails.channel_token', {
-//        token: 'abc123'
-//      });
-//      assert(this.channel._queue.length).toEqual(0);
-//    });
-//  });
-//  describe('private channels', function () {
-//    beforeEach(function () {
-//      this.channel = new WebSocketRails.Channel('forchan', this.dispatcher, true);
-//      this.event = this.dispatcher.trigger_event.lastCall.args[0];
-//    });
-//    it('should trigger a subscribe_private event when created', function () {
-//      assert(this.event.name).toEqual('websocket_rails.subscribe_private');
-//    });
-//    it('should be private', function () {
-//      assert(this.channel.is_private).toBeTruthy;
-//    });
-//  });
-//});
-//
-//// ---
-//// generated by coffee-script 1.9.2
+import sinon from 'sinon';
+import assert from 'power-assert';
+import WebSocketRails from '../src/WebSocketRails';
+import { WebSocketRailsStub } from './stubs';
+
+describe('WebSocketRails.Channel:', () => {
+  let dispatcher;
+  let channel;
+  let spy;
+
+  beforeEach(() => {
+    dispatcher = new WebSocketRailsStub();
+    channel = new WebSocketRails.Channel('public', dispatcher);
+    spy = sinon.spy(dispatcher, 'trigger_event');
+  });
+
+  afterEach(() => {
+    dispatcher.trigger_event.restore();
+  });
+
+  describe('.bind', () => {
+    it('should add a function to the callbacks collection', () => {
+      const test_func = () => ({});
+      channel.bind('event_name', test_func);
+      assert(channel._callbacks.event_name.length === 1);
+      assert(channel._callbacks.event_name.some(item => item === test_func));
+    });
+  });
+
+  // describe('.unbind', function() {
+  //  return it('should remove the callbacks of an event', function() {
+  //    const callback = function() {};
+  //    console.log(this.channel);
+  //    this.channel.bind('event', callback);
+  //    this.channel.unbind('event');
+  //    const cbs = this.channel._callbacks['event']
+  //    console.log(cbs, 'callbacks', cbs.length, cbs === '');
+  //    //assert(this.channel._callbacks['event'] == null);
+  //  });
+  // });
+  describe('.trigger', () => {
+    describe('before the channel token is set', () => {
+      it('queues the events', () => {
+        channel.trigger('someEvent', 'someData');
+        const queue = channel._queue;
+        assert(queue[0].name === 'someEvent');
+        assert(queue[0].data === 'someData');
+      });
+    });
+    describe('when channel token is set', () => {
+      it('adds token to event metadata and dispatches event', () => {
+        channel._token = 'valid token';
+        channel.trigger('someEvent', 'someData');
+        dispatcher.trigger_event([
+          'someEvent', {
+            token: 'valid token',
+            data:  'someData',
+          },
+        ]);
+
+        assert(spy.calledWith([
+          'someEvent', {
+            token: 'valid token',
+            data:  'someData',
+          },
+        ]));
+      });
+    });
+  });
+
+  describe('.destroy', () => {
+    it('should destroy all callbacks', () => {
+      const event_callback = () => true;
+
+      channel.bind('new_message', event_callback);
+      channel.destroy();
+      assert.deepEqual(channel._callbacks, {});
+    });
+
+    describe('when this channel\'s connection is still active', () => {
+      it('should send unsubscribe event', () => {
+        channel.destroy();
+        assert(dispatcher.trigger_event.args[0][0].name === 'websocket_rails.unsubscribe');
+      });
+    });
+
+    describe('when this channel\'s connection is no more active', () => {
+      beforeEach(() => (dispatcher._conn.connection_id++));
+
+      it('should not send unsubscribe event', () => {
+        channel.destroy();
+        return assert(dispatcher.trigger_event.notCalled === true);
+      });
+    });
+  });
+
+  describe('public channels', () => {
+    let event;
+
+    beforeEach(() => {
+      channel = new WebSocketRails.Channel('forchan', dispatcher, false);
+      event = dispatcher.trigger_event.lastCall.args[0];
+    });
+
+    it('should trigger an event containing the channel name', () => {
+      assert(event.data.channel === 'forchan');
+    });
+
+    it('should trigger an event containing the correct connection_id', () => {
+      assert(event.connection_id === 12345);
+    });
+
+    it('should initialize an empty callbacks property', () => {
+      assert(channel._callbacks);
+      assert.deepEqual(channel._callbacks, {});
+    });
+    it('should be public', () => {
+      assert(!channel.is_private);
+    });
+  });
+
+  describe('channel tokens', () => {
+    it('should set token when event_name is websocket_rails.channel_token', () => {
+      channel.dispatch('websocket_rails.channel_token', {
+        token: 'abc123',
+      });
+      assert(channel._token === 'abc123');
+    });
+
+    it("should refresh channel's connection_id after channel_token has been received", () => {
+      channel.connection_id = null;
+      channel.dispatch('websocket_rails.channel_token', {
+        token: 'abc123',
+      });
+      assert(channel.connection_id === dispatcher._conn.connection_id);
+    });
+
+    it('should flush the event queue after setting token', () => {
+      channel.trigger('someEvent', 'someData');
+      channel.dispatch('websocket_rails.channel_token', {
+        token: 'abc123',
+      });
+      assert(channel._queue.length === 0);
+    });
+  });
+
+  describe('private channels', () => {
+    let event;
+
+    beforeEach(() => {
+      channel = new WebSocketRails.Channel('forchan', dispatcher, true);
+      event = dispatcher.trigger_event.lastCall.args[0];
+    });
+
+    it('should trigger a subscribe_private event when created', () => {
+      assert(event.name === 'websocket_rails.subscribe_private');
+    });
+
+    it('should be private', () => {
+      assert(channel.is_private);
+    });
+  });
+});

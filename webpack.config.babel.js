@@ -16,11 +16,6 @@ export default {
     library: 'WebSocketRails',
   },
   plugins: [
-    new webpack.ProvidePlugin({
-      $:               'jquery',
-      jQuery:          'jquery',
-      'window.jQuery': 'jquery',
-    }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin(),
     new HtmlWebpackPlugin({

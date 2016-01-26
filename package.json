@@ -1,16 +1,18 @@
 {
-  "private": true,
   "engines": {
     "node": ">=4",
     "npm": ">=3.3 <4"
   },
   "name": "websocket-rails-node",
-  "version": "0.0.0",
-  "description": "ES6 implimention of websocket-rails javascript",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
+  "version": "0.0.1",
+  "description": "ES6 implimention of websocket-rails javascript client",
+  "main": "/lib/index.js",
+  "jsnext:main": "src/index.js",
+  "files": [
+    "dist",
+    "lib",
+    "src"
+  ],
   "scripts": {
     "clean": "rimraf dist",
     "build:prod": "NODE_ENV=production webpack --config webpack.production.config.babel.js",
@@ -20,7 +22,7 @@
     "mocha": "NODE_ENV=test mocha --compilers js:espower-babel/guess --require test/helper.js test/**/*.js",
     "test": "npm run lint && npm run mocha",
     "test:watch": "npm run mocha -- -w",
-    "postinstall": "npm run build"
+    "prepublish": "npm run clean && npm run build"
   },
   "keywords": [
     "WebSocket",
@@ -54,5 +56,9 @@
     "webpack-dev-middleware": "^1.5.1",
     "webpack-hot-middleware": "^2.6.3"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zenoplex/websocket-rails-node"
+  }
 }

@@ -1,9 +1,10 @@
 import sinon from 'sinon';
 import assert from 'power-assert';
-import WebSocketRails from '../src/WebSocketRails';
+import Event from '../src/Event';
+import WebSocketConnection from '../src/WebSocketConnection';
 import { WebSocketStub } from './stubs';
 
-describe('WebsocketRails.WebSocketConnection:', () => {
+describe('WebSocketConnection', () => {
   const SAMPLE_EVENT_DATA = ['event', 'message'];
   const SAMPLE_EVENT = {
     data: JSON.stringify(SAMPLE_EVENT_DATA),
@@ -16,7 +17,7 @@ describe('WebsocketRails.WebSocketConnection:', () => {
       state:       'connected',
     };
     WebSocket = WebSocketStub;
-    this.connection = new WebSocketRails.WebSocketConnection('localhost:3000/websocket', this.dispatcher);
+    this.connection = new WebSocketConnection('localhost:3000/websocket', this.dispatcher);
     this.dispatcher._conn = this.connection;
   });
 
@@ -38,7 +39,7 @@ describe('WebsocketRails.WebSocketConnection:', () => {
     describe('with ssl', function () {
       it('should not add the ws:// prefix to the URL', function () {
         var connection;
-        connection = new WebSocketRails.WebSocketConnection('wss://localhost.com');
+        connection = new WebSocketConnection('wss://localhost.com');
         assert(connection.url === 'wss://localhost.com');
       });
     });
@@ -61,7 +62,7 @@ describe('WebsocketRails.WebSocketConnection:', () => {
       it('should queue up the events', function () {
         var event, mock_queue;
         this.connection.dispatcher.state = 'connecting';
-        event = new WebSocketRails.Event(['event', 'message']);
+        event = new Event(['event', 'message']);
         mock_queue = sinon.mock(this.connection.message_queue);
         mock_queue.expects('push').once().withArgs(event);
       });
@@ -70,7 +71,7 @@ describe('WebsocketRails.WebSocketConnection:', () => {
     describe('after the connection has been fully established', function () {
       it('should encode the data and send it through the WebSocket object', function () {
         this.connection.dispatcher.state = 'connected';
-        const event = new WebSocketRails.Event(['event', 'message']);
+        const event = new Event(['event', 'message']);
         this.connection._conn = {
           send: () => true,
         };
@@ -93,8 +94,8 @@ describe('WebsocketRails.WebSocketConnection:', () => {
 
   describe('.on_close', function () {
     it('should dispatch the connection_closed event and pass the original event', function () {
-      const event = new WebSocketRails.Event(['event', 'message']);
-      const close_event = new WebSocketRails.Event(['connection_closed', event]);
+      const event = new Event(['event', 'message']);
+      const close_event = new Event(['connection_closed', event]);
       sinon.spy(this.dispatcher, 'dispatch');
       this.connection.on_close(close_event);
       const dispatcher = this.dispatcher.dispatch;
@@ -104,7 +105,7 @@ describe('WebsocketRails.WebSocketConnection:', () => {
       dispatcher.restore();
     });
     it('sets the connection state on the dispatcher to disconnected', function () {
-      const close_event = new WebSocketRails.Event(['connection_closed', {}]);
+      const close_event = new Event(['connection_closed', {}]);
       this.connection.on_close(close_event);
       assert(this.dispatcher.state === 'disconnected');
     });
@@ -112,8 +113,8 @@ describe('WebsocketRails.WebSocketConnection:', () => {
 
   describe('.on_error', function () {
     it('should dispatch the connection_error event and pass the original event', function () {
-      const event = new WebSocketRails.Event(['event', 'message']);
-      const error_event = new WebSocketRails.Event(['connection_error', event]);
+      const event = new Event(['event', 'message']);
+      const error_event = new Event(['connection_error', event]);
       sinon.spy(this.dispatcher, 'dispatch');
       this.connection.on_error(event);
       const dispatcher = this.dispatcher.dispatch;
@@ -123,14 +124,14 @@ describe('WebsocketRails.WebSocketConnection:', () => {
       dispatcher.restore();
     });
     it('sets the connection state on the dispatcher to disconnected', function () {
-      const close_event = new WebSocketRails.Event(['connection_closed', {}]);
+      const close_event = new Event(['connection_closed', {}]);
       this.connection.on_error(close_event);
       assert(this.dispatcher.state === 'disconnected');
     });
   });
   describe('it\'s no longer active connection', function () {
     beforeEach(function () {
-      this.new_connection = new WebSocketRails.WebSocketConnection('localhost:3000/websocket', this.dispatcher);
+      this.new_connection = new WebSocketConnection('localhost:3000/websocket', this.dispatcher);
       this.dispatcher._conn = this.new_connection;
     });
     it('.on_error should not react to the event response', function () {
@@ -155,7 +156,7 @@ describe('WebsocketRails.WebSocketConnection:', () => {
 
   describe('.flush_queue', function () {
     beforeEach(function () {
-      this.event = new WebSocketRails.Event(['event', 'message']);
+      this.event = new Event(['event', 'message']);
       this.connection.message_queue.push(this.event);
       this.connection._conn = {
         send: () => true,

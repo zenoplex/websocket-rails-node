@@ -3,7 +3,7 @@ import assert from 'power-assert';
 import Channel from '../src/Channel';
 import { WebSocketRailsStub } from './stubs';
 
-describe('WebSocketRails.Channel:', () => {
+describe('Channel', () => {
   let dispatcher;
   let channel;
   let spy;

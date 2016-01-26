@@ -3,7 +3,7 @@ import assert from 'power-assert';
 import WebSocketRails from '../src/WebSocketRails';
 import { WebSocketConnectionStub, HttpConnectionStub } from './stubs';
 
-describe('WebSocketRails:',  () => {
+describe('WebSocketRails',  () => {
   const helper = window.helper;
 
   beforeEach(function () {
@@ -231,15 +231,15 @@ describe('WebSocketRails:',  () => {
     });
   });
 
-  //describe('.unbind', function() {
-  //   it('should delete the callback on the correct event', function() {
-  //    var callback;
-  //    callback = function() {};
-  //    this.dispatcher.bind('event', callback);
-  //    this.dispatcher.unbind('event');
-  //     assert(this.dispatcher.callbacks['event'] === undefined);
-  //  });
-  //});
+  describe('.unbind', function() {
+     it('should delete the callback on the correct event', function() {
+      var callback;
+      callback = function() {};
+      this.dispatcher.bind('event', callback);
+      this.dispatcher.unbind('event');
+       assert(this.dispatcher.callbacks['event'] === undefined);
+    });
+  });
 
   describe('.dispatch', function () {
     it('should execute the callback for the correct event', function () {

@@ -1,7 +1,7 @@
 import assert from 'power-assert';
 import Event from '../src/Event';
 
-describe('WebSocketRails.Event', () => {
+describe('Event', () => {
   describe('standard events', () => {
     let event;
     beforeEach(() => {

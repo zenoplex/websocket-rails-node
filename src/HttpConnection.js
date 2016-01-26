@@ -45,15 +45,17 @@ export default class HttpConnection extends AbstractConnection {
   };
 
   _post_data(payload) {
-    const $ = require('jquery');
-    return $.ajax(this._url, {
-      type:    'POST',
-      data:    {
-        client_id: this.connection_id,
-        data:      payload,
-      },
-      success: () => false,
-    });
+    const { jQuery } = window;
+    if (jQuery) {
+      return jQuery.ajax(this._url, {
+        type:    'POST',
+        data:    {
+          client_id: this.connection_id,
+          data:      payload,
+        },
+        success: () => false,
+      });
+    }
   };
 
   _createXMLHttpObject() {

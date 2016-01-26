@@ -1,15 +1,15 @@
 import AbstractConnection from '../src/AbstractConnection';
 
 export class WebSocketConnectionStub extends AbstractConnection {
-  constructor() {
-    super();
+  constructor(url, dispatch) {
+    super(url, dispatch);
     this.connection_type = 'websocket';
   }
 }
 
 export class HttpConnectionStub extends AbstractConnection {
-  constructor() {
-    super();
+  constructor(url, dispatch) {
+    super(url, dispatch);
     this.connection_type = 'http';
   }
 }
@@ -34,3 +34,19 @@ export class WebSocketRailsStub {
     return true;
   }
 }
+
+export class WebSocketStub {
+  constructor(url, dispatcher) {
+    this.url = url;
+    this.dispatcher = dispatcher;
+  }
+
+  send() {
+    return true;
+  }
+
+  close() {
+    this.onclose(null);
+  }
+}
+

@@ -13,3 +13,17 @@ for (const key in window) {
 
   global[key] = window[key];
 }
+
+window['WebSocket'] = {};
+global['WebSocket'] = {};
+
+window.helpers = global.helpers = {
+  startConnection: (dispatcher, connection_id = 1) => {
+    const message = {
+      data: {
+        connection_id: connection_id,
+      },
+    };
+    return dispatcher.new_message([['client_connected', message]]);
+  },
+};

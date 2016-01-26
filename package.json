@@ -4,7 +4,7 @@
     "npm": ">=3.3 <4"
   },
   "name": "websocket-rails-node",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "ES6 implimention of websocket-rails javascript client",
   "main": "/lib/index.js",
   "jsnext:main": "src/index.js",
@@ -14,9 +14,10 @@
     "src"
   ],
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rimraf lib dist",
     "build:prod": "NODE_ENV=production webpack --config webpack.production.config.babel.js",
-    "build": "npm run clean && npm run build:prod",
+    "build:lib": "babel src -d lib",
+    "build": "npm run build:lib && npm run build:prod",
     "start": "babel-node server/index.js",
     "lint": "eslint src",
     "mocha": "NODE_ENV=test mocha --compilers js:espower-babel/guess --require test/helper.js test/**/*.js",

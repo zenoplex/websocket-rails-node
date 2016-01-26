@@ -17,7 +17,7 @@
     "build": "npm run clean && npm run build:prod",
     "start": "babel-node server/index.js",
     "lint": "eslint src",
-    "mocha": "NODE_ENV=test mocha --compilers js:espower-babel/guess test/**/*.js",
+    "mocha": "NODE_ENV=test mocha --compilers js:espower-babel/guess --require test/helper.js test/**/*.js",
     "test": "npm run lint && npm run mocha",
     "test:watch": "npm run mocha -- -w",
     "postinstall": "npm run build"
@@ -49,5 +49,8 @@
     "sinon": "^1.17.2",
     "webpack": "^1.12.12",
     "webpack-hot-middleware": "^2.6.3"
+  },
+  "dependencies": {
+    "jquery": "^2.2.0"
   }
 }

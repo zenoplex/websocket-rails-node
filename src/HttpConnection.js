@@ -71,7 +71,6 @@ export default class HttpConnection extends AbstractConnection {
       try {
         xmlhttp = factory();
       } catch (_error) {
-        console.error(_error);
         continue;
       }
       break;

@@ -16,24 +16,11 @@ export default class WebSocketConnection extends AbstractConnection {
     }
 
     this._conn = new WebSocket(this.url);
-    this._conn.onmessage = (() => {
-      return event => {
-        const event_data = JSON.parse(event.data);
-        return this.on_message(event_data);
-      };
-    })();
+    this._conn.onmessage = event => this.on_message(JSON.parse(event.data));
 
-    this._conn.onclose = (() => {
-      return event => {
-        return this.on_close(event);
-      };
-    })();
+    this._conn.onclose = event => this.on_close(event);
 
-    this._conn.onerror = (() => {
-      return event => {
-        return this.on_error(event);
-      };
-    })();
+    this._conn.onerror = event => this.on_error(event);
   }
 
   close() {

@@ -5,13 +5,13 @@ export default class Event {
     this.name = data[0];
     const attr = data[1];
 
-    if (attr != null) {
-      this.id = attr['id'] != null ? attr['id'] : ((1 + Math.random()) * 0x10000) | 0;
-      this.channel = attr.channel != null ? attr.channel : void 0;
-      this.data = attr.data != null ? attr.data : attr;
-      this.token = attr.token != null ? attr.token : void 0;
+    if (attr) {
+      this.id = attr.id ? attr.id : ((1 + Math.random()) * 0x10000) | 0;
+      this.channel = attr.channel ? attr.channel : undefined;
+      this.data = attr.data ? attr.data : attr;
+      this.token = attr.token ? attr.token : undefined;
       this.connection_id = data[2];
-      if (attr.success != null) {
+      if (attr.success) {
         this.result = true;
         this.success = attr.success;
       }
@@ -19,7 +19,7 @@ export default class Event {
   }
 
   is_channel() {
-    return this.channel != null;
+    return !!this.channel;
   }
 
   is_result() {
@@ -46,10 +46,11 @@ export default class Event {
   run_callbacks(success, result) {
     this.success = success;
     this.result = result;
-    if (this.success === true) {
-      return typeof this.success_callback === 'function' ? this.success_callback(this.result) : void 0;
-    } else {
-      return typeof this.failure_callback === 'function' ? this.failure_callback(this.result) : void 0;
+    if (this.success) {
+      return typeof this.success_callback === 'function' ?
+        this.success_callback(this.result) : undefined;
     }
+    return typeof this.failure_callback === 'function' ?
+      this.failure_callback(this.result) : undefined;
   }
 }

@@ -11,14 +11,13 @@ export default class AbstractConnection {
   trigger(event) {
     if (this.dispatcher.state !== 'connected') {
       return this.message_queue.push(event);
-    } else {
-      return this.send_event(event);
     }
+    return this.send_event(event);
   }
 
   send_event(event) {
-    if (this.connection_id != null) {
-      return event.connection_id = this.connection_id;
+    if (this.connection_id) {
+      return (event.connection_id = this.connection_id);
     }
   }
 
@@ -49,12 +48,10 @@ export default class AbstractConnection {
   }
 
   flush_queue() {
-    var event, i, len, ref;
-    ref = this.message_queue;
-    for (i = 0, len = ref.length; i < len; i++) {
-      event = ref[i];
-      this.trigger(event);
-    }
-    return this.message_queue = [];
+    this.message_queue.forEach(item => {
+      this.trigger(item);
+    });
+
+    return (this.message_queue = []);
   }
 }

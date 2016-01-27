@@ -4,9 +4,9 @@ import WebSocketConnection from './WebSocketConnection';
 import Event from './Event';
 
 export default class WebSocketRails {
-  constructor(url, use_websockets) {
+  constructor(url, use_websockets = true) {
     this.url = url;
-    this.use_websockets = use_websockets != null ? use_websockets : true;
+    this.use_websockets = use_websockets;
     this.callbacks = {};
     this.channels = {};
     this.queue = {};
@@ -20,7 +20,7 @@ export default class WebSocketRails {
     } else {
       this._conn = new WebSocketConnection(this.url, this);
     }
-    return this._conn.new_message = this.new_message;
+    return (this._conn.new_message = this.new_message);
   }
 
   disconnect() {
@@ -29,33 +29,32 @@ export default class WebSocketRails {
       delete this._conn._conn;
       delete this._conn;
     }
-    return this.state = 'disconnected';
+    return (this.state = 'disconnected');
   }
 
   reconnect() {
-    var event, id, old_connection_id, ref, ref1;
-    old_connection_id = (ref = this._conn) != null ? ref.connection_id : void 0;
+    const old_connection_id = (this._conn && this._conn.connection_id);
+
     this.disconnect();
     this.connect();
-    ref1 = this.queue;
-    for (id in ref1) {
-      event = ref1[id];
+
+    Object.keys(this.queue).forEach(key => {
+      const event = this.queue[key];
       if (event.connection_id === old_connection_id && !event.is_result()) {
         this.trigger_event(event);
       }
-    }
+    });
+
     return this.reconnect_channels();
   }
 
   new_message(data) {
-    var event, i, len, ref, results, socket_message;
-    results = [];
-    for (i = 0, len = data.length; i < len; i++) {
-      socket_message = data[i];
-      event = new Event(socket_message);
+    return data.map(message => {
+      const event = new Event(message);
+
       if (event.is_result()) {
-        if ((ref = this.queue[event.id]) != null) {
-          ref.run_callbacks(event.success, event.data);
+        if (this.queue[event.id]) {
+          this.queue[event.id].run_callbacks(event.success, event.data);
         }
         delete this.queue[event.id];
       } else if (event.is_channel()) {
@@ -66,48 +65,45 @@ export default class WebSocketRails {
         this.dispatch(event);
       }
       if (this.state === 'connecting' && event.name === 'client_connected') {
-        results.push(this.connection_established(event.data));
-      } else {
-        results.push(void 0);
+        return this.connection_established(event.data);
       }
-    }
-    return results;
+    });
   }
 
   connection_established(data) {
     this.state = 'connected';
     this._conn.setConnectionId(data.connection_id);
     this._conn.flush_queue();
-    if (this.on_open != null) {
+    if (this.on_open) {
       return this.on_open(data);
     }
   }
 
-  bind(event_name, callback) {
-    var base;
-    if ((base = this.callbacks)[event_name] == null) {
-      base[event_name] = [];
+  bind(eventName, callback) {
+    if (!this.callbacks[eventName]) {
+      this.callbacks[eventName] = [];
     }
-    return this.callbacks[event_name].push(callback);
+    return this.callbacks[eventName].push(callback);
   }
 
   unbind(event_name) {
     return delete this.callbacks[event_name];
   }
 
-  trigger(event_name, data, success_callback, failure_callback) {
-    let ref;
-    const event = new Event([event_name, data, (ref = this._conn) != null ? ref.connection_id : void 0], success_callback, failure_callback);
+  trigger(eventName, data, success, fail) {
+    const event = new Event(
+      [eventName, data, (this._conn && this._conn.connection_id)], success, fail
+    );
     return this.trigger_event(event);
   }
 
   trigger_event(event) {
-    let base;
-    let name1;
+    const { id } = event;
 
-    if ((base = this.queue)[name1 = event.id] == null) {
-      base[name1] = event;
+    if (!this.queue[id]) {
+      this.queue[id] = event;
     }
+
     if (this._conn) {
       this._conn.trigger(event);
     }
@@ -115,57 +111,42 @@ export default class WebSocketRails {
   }
 
   dispatch(event) {
-    var callback, i, len, ref, results;
-
-    if (this.callbacks[event.name] == null) {
-      return;
-    }
-    ref = this.callbacks[event.name];
-    results = [];
-    for (i = 0, len = ref.length; i < len; i++) {
-      callback = ref[i];
-      results.push(callback(event.data));
-    }
-    return results;
-  }
-
-  subscribe(channel_name, success_callback, failure_callback) {
-    let channel;
-
-    if (this.channels[channel_name] == null) {
-      channel = new Channel(channel_name, this, false, success_callback, failure_callback);
-      this.channels[channel_name] = channel;
-      return channel;
-    } else {
-      return this.channels[channel_name];
+    const { name, data } = event;
+    if (this.callbacks[name]) {
+      return this.callbacks[name].map(callback => callback(data));
     }
   }
 
-  subscribe_private(channel_name, success_callback, failure_callback) {
-    let channel;
-
-    if (this.channels[channel_name] == null) {
-      channel = new Channel(channel_name, this, true, success_callback, failure_callback);
-      this.channels[channel_name] = channel;
-      return channel;
-    } else {
-      return this.channels[channel_name];
+  subscribe(channelName, success, fail) {
+    if (!this.channels[channelName]) {
+      this.channels[channelName] = new Channel(
+        channelName, this, false, success, fail
+      );
     }
+
+    return this.channels[channelName];
   }
 
-  unsubscribe(channel_name) {
-    if (this.channels[channel_name] == null) {
-      return;
+  subscribe_private(channelName, success, fail) {
+    if (!this.channels[channelName]) {
+      this.channels[channelName] = new Channel(
+        channelName, this, true, success, fail
+      );
     }
-    this.channels[channel_name].destroy();
-    return delete this.channels[channel_name];
+    return this.channels[channelName];
+  }
+
+  unsubscribe(channelName) {
+    if (this.channels[channelName]) {
+      this.channels[channelName].destroy();
+      return delete this.channels[channelName];
+    }
   }
 
   dispatch_channel(event) {
-    if (this.channels[event.channel] == null) {
-      return;
+    if (this.channels[event.channel]) {
+      return this.channels[event.channel].dispatch(event.name, event.data);
     }
-    return this.channels[event.channel].dispatch(event.name, event.data);
   }
 
   supports_websockets() {
@@ -174,8 +155,7 @@ export default class WebSocketRails {
   }
 
   pong() {
-    let ref;
-    const pong = new Event(['websocket_rails.pong', {}, (ref = this._conn) != null ? ref.connection_id : void 0]);
+    const pong = new Event(['websocket_rails.pong', {}, (this._conn && this._conn.connection_id)]);
     return this._conn.trigger(pong);
   }
 
@@ -184,19 +164,19 @@ export default class WebSocketRails {
   }
 
   reconnect_channels() {
-    var callbacks, channel, name, ref, results;
-    ref = this.channels;
-    results = [];
-    for (name in ref) {
-      channel = ref[name];
-      callbacks = channel._callbacks;
+    const { channels } = this;
+
+    return Object.keys(channels).map(key => {
+      let channel = channels[key];
+      const callbacks = channel._callbacks;
       channel.destroy();
-      delete this.channels[name];
-      channel = channel.is_private ? this.subscribe_private(name) : this.subscribe(name);
+      delete this.channels[key];
+
+      channel = channel.is_private ? this.subscribe_private(key) : this.subscribe(key);
       channel._callbacks = callbacks;
-      results.push(channel);
-    }
-    return results;
+
+      return channel;
+    });
   }
 }
 

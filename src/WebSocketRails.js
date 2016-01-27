@@ -20,7 +20,7 @@ export default class WebSocketRails {
     } else {
       this._conn = new WebSocketConnection(this.url, this);
     }
-    return this._conn.new_message = this.new_message;
+    return (this._conn.new_message = this.new_message);
   }
 
   disconnect() {
@@ -29,7 +29,7 @@ export default class WebSocketRails {
       delete this._conn._conn;
       delete this._conn;
     }
-    return this.state = 'disconnected';
+    return (this.state = 'disconnected');
   }
 
   reconnect() {

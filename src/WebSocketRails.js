@@ -136,10 +136,10 @@ export default class WebSocketRails {
     return this.channels[channelName];
   }
 
-  unsubscribe(channel_name) {
-    if (this.channels[channel_name]) {
-      this.channels[channel_name].destroy();
-      return delete this.channels[channel_name];
+  unsubscribe(channelName) {
+    if (this.channels[channelName]) {
+      this.channels[channelName].destroy();
+      return delete this.channels[channelName];
     }
   }
 

@@ -33,17 +33,18 @@ export default class WebSocketRails {
   }
 
   reconnect() {
-    var event, id, old_connection_id, ref, ref1;
-    old_connection_id = (ref = this._conn) != null ? ref.connection_id : void 0;
+    const old_connection_id = (this._conn && this._conn.connection_id);
+
     this.disconnect();
     this.connect();
-    ref1 = this.queue;
-    for (id in ref1) {
-      event = ref1[id];
+
+    Object.keys(this.queue).forEach(key => {
+      const event = this.queue[key];
       if (event.connection_id === old_connection_id && !event.is_result()) {
         this.trigger_event(event);
       }
-    }
+    });
+
     return this.reconnect_channels();
   }
 

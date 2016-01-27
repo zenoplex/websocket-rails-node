@@ -10,19 +10,12 @@ export default class WebSocketConnection extends AbstractConnection {
     if (this.url.match(/^wss?:\/\//)) {
       console.log('WARNING: Using connection urls with protocol specified is depricated');
     } else if (window.location.protocol === 'https:') {
-      this.url = 'wss://' + this.url;
+      this.url = `wss://${this.url}`;
     } else {
-      this.url = 'ws://' + this.url;
+      this.url = `ws://${this.url}`;
     }
 
     this._conn = new WebSocket(this.url);
-    this._conn.onmessage = (() => {
-      return event => {
-        const event_data = JSON.parse(event.data);
-        return this.on_message(event_data);
-      };
-    })();
-
     this._conn.onmessage = (() => {
       return event => {
         const event_data = JSON.parse(event.data);

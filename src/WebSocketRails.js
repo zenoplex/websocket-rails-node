@@ -49,14 +49,12 @@ export default class WebSocketRails {
   }
 
   new_message(data) {
-    var event, i, len, ref, results, socket_message;
-    results = [];
-    for (i = 0, len = data.length; i < len; i++) {
-      socket_message = data[i];
-      event = new Event(socket_message);
+    return data.map(message => {
+      const event = new Event(message);
+
       if (event.is_result()) {
-        if ((ref = this.queue[event.id]) != null) {
-          ref.run_callbacks(event.success, event.data);
+        if (this.queue[event.id]) {
+          this.queue[event.id].run_callbacks(event.success, event.data);
         }
         delete this.queue[event.id];
       } else if (event.is_channel()) {
@@ -67,12 +65,9 @@ export default class WebSocketRails {
         this.dispatch(event);
       }
       if (this.state === 'connecting' && event.name === 'client_connected') {
-        results.push(this.connection_established(event.data));
-      } else {
-        results.push(void 0);
+        return this.connection_established(event.data);
       }
-    }
-    return results;
+    });
   }
 
   connection_established(data) {
